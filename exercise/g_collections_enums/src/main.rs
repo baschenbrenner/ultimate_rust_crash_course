@@ -1,6 +1,13 @@
 // Silence some warnings that could distract from the exercise
-#![allow(unused_variables, unused_mut, dead_code)]
 
+#![allow(unused_variables, unused_mut, dead_code)]
+use rand::Rng;
+
+enum Shot {
+    Bullseye,
+    Hit(f64),
+    Miss
+}
 // Someone is shooting arrows at a target.  We need to classify the shots.
 //
 // 1a. Create an enum called `Shot` with variants:
@@ -13,6 +20,17 @@
 impl Shot {
     // Here is a method for the `Shot` enum you just defined.
     fn points(self) -> i32 {
+        match self {
+            Shot::Bullseye => 5,
+            Shot::Hit(x) => {
+                if x< 3.0 {
+                    return 2
+                } else {
+                    return 1
+                }
+            },
+            Shot::Miss => 0
+        }
         // 1b. Implement this method to convert a Shot into points
         // - return 5 points if `self` is a `Shot::Bullseye`
         // - return 2 points if `self` is a `Shot::Hit(x)` where x < 3.0
@@ -26,6 +44,19 @@ fn main() {
     let arrow_coords: Vec<Coord> = get_arrow_coords(5);
     let mut shots: Vec<Shot> = Vec::new();
 
+    for co in arrow_coords {
+        co.print_description();
+        let dist = co.distance_from_center();
+        if dist < 1.0 {
+            shots.push(Shot::Bullseye)
+        } else if dist >= 1.0 && dist <= 5.0 {
+            shots.push(Shot::Hit(dist))
+        } else {
+            shots.push(Shot::Miss)
+        }
+    }
+
+
     // 2. For each coord in arrow_coords:
     //
     //   A. Call `coord.print_description()`
@@ -36,7 +67,11 @@ fn main() {
     //      - Greater than 5.0 -- `Shot::Miss`
 
 
+
     let mut total = 0;
+    for shot in shots {
+        total += shot.points()
+    }
     // 3. Finally, loop through each shot in shots and add its points to total
 
     println!("Final point total is: {}", total);
@@ -65,11 +100,14 @@ impl Coord {
 
 // Generate some random coordinates
 fn get_arrow_coords(num: u32) -> Vec<Coord> {
+    let skill = rand::thread_rng().gen_range(5,12);
+    let flt = skill as f64;
+    println!("The skill level is {}", skill);
     let mut coords: Vec<Coord> = Vec::new();
     for _ in 0..num {
         let coord = Coord {
-            x: (rand::random::<f64>() - 0.5) * 12.0,
-            y: (rand::random::<f64>() - 0.5) * 12.0,
+            x: (rand::random::<f64>() - 0.5) * flt,
+            y: (rand::random::<f64>() - 0.5) * flt,
         };
         coords.push(coord);
     }
